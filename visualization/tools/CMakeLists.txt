@@ -62,3 +62,8 @@ if(WITH_RSSDK)
     target_link_libraries(pcl_real_sense_viewer pcl_common pcl_io pcl_visualization)
 endif()
 
+if(WITH_LIBREALSENSE)
+    PCL_ADD_EXECUTABLE_OPT_BUNDLE(pcl_realsense_viewer ${SUBSYS_NAME} realsense_viewer.cpp)
+    target_link_libraries(pcl_realsense_viewer pcl_common pcl_io pcl_visualization)
+endif()
+
