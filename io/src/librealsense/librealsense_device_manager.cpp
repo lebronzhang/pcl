@@ -50,23 +50,23 @@ pcl::io::librealsense::LibRealSenseDeviceManager::LibRealSenseDeviceManager ()
 
 pcl::io::librealsense::LibRealSenseDeviceManager::~LibRealSenseDeviceManager ()
 {
- 	context_.~context();
+  context_.~context();
 }
 
 
 std::string
 pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGrabberImpl* grabber)
 {
- 	boost::mutex::scoped_lock lock (mutex_);
- 	if(context_.get_device_count () == 0)
- 		THROW_IO_EXCEPTION ("no connected devices");
- 	for(int i = 0; i < context_.get_device_count (); i++)
- 	{
- 		if (!isCaptured (context_.get_device (i)->get_serial ()))
+  boost::mutex::scoped_lock lock (mutex_);
+  if(context_.get_device_count () == 0)
+ 	  THROW_IO_EXCEPTION ("no connected devices");
+  for(int i = 0; i < context_.get_device_count (); i++)
+  {
+ 	  if (!isCaptured (context_.get_device (i)->get_serial ()))
       return (captureDevice (grabber, context_.get_device (i)));
- 	} 
-  	THROW_IO_EXCEPTION ("all connected devices are captured by other grabbers");
-  	return ("");  // never reached, needed just to silence -Wreturn-type warning
+  } 
+  THROW_IO_EXCEPTION ("all connected devices are captured by other grabbers");
+  return ("");  // never reached, needed just to silence -Wreturn-type warning
 }
 
 std::string
@@ -141,16 +141,16 @@ pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGra
 void 
 pcl::io::librealsense::LibRealSenseDeviceManager::run (const CapturedDevice& dev, const std::string& sn)
 {
-	int frames = 0; 
+  int frames = 0; 
   float time = 0, fps = 0;
   auto t0 = std::chrono::high_resolution_clock::now ();
-	dev.librealsense_device->enable_stream (rs::stream::depth, rs::preset::best_quality);
+  dev.librealsense_device->enable_stream (rs::stream::depth, rs::preset::best_quality);
   dev.librealsense_device->enable_stream (rs::stream::color, rs::preset::best_quality);
   dev.librealsense_device->start ();
-	while (!thread_close_flag_[sn])
-	{
-		if (dev.librealsense_device->is_streaming ()) dev.librealsense_device->wait_for_frames ();
-		auto t1 = std::chrono::high_resolution_clock::now ();
+  while (!thread_close_flag_[sn])
+  {
+    if (dev.librealsense_device->is_streaming ()) dev.librealsense_device->wait_for_frames ();
+    auto t1 = std::chrono::high_resolution_clock::now ();
     time += std::chrono::duration<float> (t1 - t0).count ();
     t0 = t1;
     ++frames;
@@ -160,7 +160,7 @@ pcl::io::librealsense::LibRealSenseDeviceManager::run (const CapturedDevice& dev
       frames = 0;
       time = 0;
     }
-		// Retrieve our images
+    // Retrieve our images
     const uint16_t * depth_image = (const uint16_t *)dev.librealsense_device->get_frame_data (rs::stream::depth);
     const uint8_t * color_image = (const uint8_t *)dev.librealsense_device->get_frame_data (rs::stream::color);
     // Retrieve camera parameters for mapping between depth and color
@@ -169,5 +169,5 @@ pcl::io::librealsense::LibRealSenseDeviceManager::run (const CapturedDevice& dev
     rs::extrinsics depth_to_color = dev.librealsense_device->get_extrinsics (rs::stream::depth, rs::stream::color);
     float scale = dev.librealsense_device->get_depth_scale ();
     dev.grabber->onDataReceived (depth_image, color_image, depth_intrin, color_intrin, depth_to_color, scale, fps);
-	}	
+  }	
 }
