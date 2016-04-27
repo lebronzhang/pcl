@@ -54,7 +54,7 @@ namespace pcl
     *
     * \author Lebron Zhang
     * \ingroup io */
-    class PCL_EXPORTS LibRealSenseGrabber : public Grabber
+  class PCL_EXPORTS LibRealSenseGrabber : public Grabber
   {
 
     public:

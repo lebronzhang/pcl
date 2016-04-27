@@ -65,209 +65,210 @@ printHelp (int, char **argv)
 void
 printDeviceList ()
 {
-	typedef boost::shared_ptr<pcl::LibRealSenseGrabber> LibRealSenseGrabberPtr;
-	std::vector<LibRealSenseGrabberPtr> grabbers;
-	std::cout << "Connected devices: ";
-  	boost::format fmt ("\n  #%i  %s");
-  	while (true)
-  	{
-    	try
-    	{
-     		grabbers.push_back (LibRealSenseGrabberPtr (new pcl::LibRealSenseGrabber));
-      		std::cout << boost::str (fmt % grabbers.size () % grabbers.back ()->getDeviceSerialNumber ());
-    	}
-    	catch (pcl::io::IOException& e)
-    	{
-      		break;
-    	}
-  	}
-  	if (grabbers.size ())
-    	std::cout << std::endl;
-  	else
-    	std::cout << "none" << std::endl;
+  typedef boost::shared_ptr<pcl::LibRealSenseGrabber> LibRealSenseGrabberPtr;
+  std::vector<LibRealSenseGrabberPtr> grabbers;
+  std::cout << "Connected devices: ";
+  boost::format fmt ("\n  #%i  %s");
+  while (true)
+  {
+    try
+    {
+      grabbers.push_back (LibRealSenseGrabberPtr (new pcl::LibRealSenseGrabber));
+      std::cout << boost::str (fmt % grabbers.size () % grabbers.back ()->getDeviceSerialNumber ());
+    }
+    catch (pcl::io::IOException& e)
+    {
+        break;
+    }
+  }
+  if (grabbers.size ())
+    std::cout << std::endl;
+  else
+    std::cout << "none" << std::endl;
 }
 
 
 template <typename PointT>
 class LibRealSenseViewer
 {
-	public:
-		typedef pcl::PointCloud<PointT> PointCloudT;
+  public:
+    typedef pcl::PointCloud<PointT> PointCloudT;
 
-		LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber)
-    	: grabber_ (grabber)
-    	, viewer_ ("LibRealSense Viewer")
-    	, grabber_second_ (grabber)
-    	, viewer_second_ (viewer_)
-    	{
-    	}
+    LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber)
+    : grabber_ (grabber)
+    , viewer_ ("LibRealSense Viewer")
+    , grabber_second_ (grabber)
+    , viewer_second_ (viewer_)
+    {
+    }
 
-		LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber, pcl::LibRealSenseGrabber& grabber_second)
-    	: grabber_ (grabber)
-    	, viewer_ ("LibRealSense Viewer One")
-    	,grabber_second_ (grabber_second)
-    	, viewer_second_ ("LibRealSense Viewer Two")
-    	{
-    	}
+    LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber, pcl::LibRealSenseGrabber& grabber_second)
+    : grabber_ (grabber)
+    , viewer_ ("LibRealSense Viewer One")
+    ,grabber_second_ (grabber_second)
+    , viewer_second_ ("LibRealSense Viewer Two")
+    {
+    }
 
-    	~LibRealSenseViewer ()
-    	{
-      		connection_.disconnect ();
-    	}
+    ~LibRealSenseViewer ()
+    {
+      connection_.disconnect ();
+    }
 
-    	void
-    	run ()
-    	{
-      	boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
-      	connection_ = grabber_.registerCallback (f);
-      	grabber_.start ();
-      	while (!viewer_.wasStopped ())
-      	{
-        	if (new_cloud_)
-        	{
-          	boost::mutex::scoped_lock lock (new_cloud_mutex_);
-          	if (!viewer_.updatePointCloud (new_cloud_, "cloud"))
-          	{
-            	viewer_.addPointCloud (new_cloud_, "cloud");
-            	viewer_.resetCamera ();
-          	}	
-          	displaySettings ();
-          	last_cloud_ = new_cloud_;
-          	new_cloud_.reset ();
-        	}
-        	viewer_.spinOnce (1, true);
-      	}
-      	grabber_.stop ();
-    	}
-
-    	void
-    	start ()
-    	{
-      	boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
-      	connection_ = grabber_.registerCallback (f);
-      	grabber_.start ();
-
-      	boost::function<void (const typename PointCloudT::ConstPtr&)> f_second_ = boost::bind (&LibRealSenseViewer::cloudCallback_second, this, _1);
-      	connection_second_ = grabber_second_.registerCallback (f_second_);
-      	grabber_second_.start ();
-
-      	while(!viewer_.wasStopped () || !viewer_second_.wasStopped ())
-      	{
-
-      		if (!viewer_.wasStopped ())
-      		{
-        		if (new_cloud_)
-        		{
-          		boost::mutex::scoped_lock lock (new_cloud_mutex_);
-          		if (!viewer_.updatePointCloud (new_cloud_, "cloud"))
-          		{
-            		viewer_.addPointCloud (new_cloud_, "cloud");
-            		viewer_.resetCamera ();
-          		}
-          		displaySettings ();
-          		last_cloud_ = new_cloud_;
-          		new_cloud_.reset ();
-        		}
-        			
-        	  viewer_.spinOnce (1, true);
-        	}
-        	if (!viewer_second_.wasStopped ())
-      		{
-        		if (new_cloud_second_)
-        		{
-          		boost::mutex::scoped_lock lock (new_cloud_mutex_second_);
-          		if (!viewer_second_.updatePointCloud (new_cloud_second_, "cloud_second_"))
-          		{
-            		viewer_second_.addPointCloud (new_cloud_second_, "cloud_second_");
-            		viewer_second_.resetCamera ();
-          		}
-          		displaySettings_second ();
-          		last_cloud_second_= new_cloud_second_;
-          		new_cloud_second_.reset ();
-        		}
-        			
-        		viewer_second_.spinOnce (1, true);
-      		}
-      	}
-      	grabber_.stop ();
-      	grabber_second_.stop ();
-    	}
-
-    private:
-
-    	void
-    	cloudCallback (typename PointCloudT::ConstPtr cloud)
-    	{
-      	if (!viewer_.wasStopped ())
-      	{
-        	boost::mutex::scoped_lock lock (new_cloud_mutex_);
-        	new_cloud_ = cloud;
-      	}
-    	}
-
-    	void
-    	cloudCallback_second (typename PointCloudT::ConstPtr cloud)
-    	{
-      	if (!viewer_second_.wasStopped ())
-      	{
-          boost::mutex::scoped_lock lock (new_cloud_mutex_second_);
-        	new_cloud_second_ = cloud;
-      	}
-    	}
-
-      void displaySettings ()
+    void
+    run ()
+    {
+      boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
+      connection_ = grabber_.registerCallback (f);
+      grabber_.start ();
+      while (!viewer_.wasStopped ())
       {
-        const int dx = 5;
-        const int dy = 14;
-        const int fs = 10;
-        boost::format name_fmt ("text%i");
-        std::vector<boost::format> entries;
-        // Framerate
-        entries.push_back(boost::format ("framerate: %.1f") % grabber_.getFramesPerSecond ());
-
-        for (size_t i = 0; i < entries.size (); ++i)
+        if (new_cloud_)
         {
-          std::string name = boost::str (name_fmt % i);
-          std::string entry = boost::str (entries[i]);
-          if (!viewer_.updateText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name))
-            viewer_.addText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name);
+          boost::mutex::scoped_lock lock (new_cloud_mutex_);
+          if (!viewer_.updatePointCloud (new_cloud_, "cloud"))
+          {
+            viewer_.addPointCloud (new_cloud_, "cloud");
+            viewer_.resetCamera ();
+          }  
+          displaySettings ();
+          last_cloud_ = new_cloud_;
+          new_cloud_.reset ();
+        }
+        viewer_.spinOnce (1, true);
+      }
+      grabber_.stop ();
+    }
+
+    //Two viewers' start function
+    void
+    start ()
+    {
+      boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
+      connection_ = grabber_.registerCallback (f);
+      grabber_.start ();
+
+      boost::function<void (const typename PointCloudT::ConstPtr&)> f_second_ = boost::bind (&LibRealSenseViewer::cloudCallback_second, this, _1);
+      connection_second_ = grabber_second_.registerCallback (f_second_);
+      grabber_second_.start ();
+
+      while(!viewer_.wasStopped () || !viewer_second_.wasStopped ())
+      {
+
+        if (!viewer_.wasStopped ())
+        {
+          if (new_cloud_)
+          {
+            boost::mutex::scoped_lock lock (new_cloud_mutex_);
+            if (!viewer_.updatePointCloud (new_cloud_, "cloud"))
+            {
+              viewer_.addPointCloud (new_cloud_, "cloud");
+              viewer_.resetCamera ();
+            }
+            displaySettings ();
+            last_cloud_ = new_cloud_;
+            new_cloud_.reset ();
+          }
+              
+          viewer_.spinOnce (1, true);
+        }
+        if (!viewer_second_.wasStopped ())
+        {
+          if (new_cloud_second_)
+          {
+            boost::mutex::scoped_lock lock (new_cloud_mutex_second_);
+            if (!viewer_second_.updatePointCloud (new_cloud_second_, "cloud_second_"))
+            {
+              viewer_second_.addPointCloud (new_cloud_second_, "cloud_second_");
+              viewer_second_.resetCamera ();
+            }
+            displaySettings_second ();
+            last_cloud_second_= new_cloud_second_;
+            new_cloud_second_.reset ();
+          }
+              
+          viewer_second_.spinOnce (1, true);
         }
       }
+      grabber_.stop ();
+      grabber_second_.stop ();
+    }
 
-      void displaySettings_second ()
+  private:
+
+    void
+    cloudCallback (typename PointCloudT::ConstPtr cloud)
+    {
+      if (!viewer_.wasStopped ())
       {
-        const int dx = 5;
-        const int dy = 14;
-        const int fs = 10;
-        boost::format name_fmt ("text%i");
-        std::vector<boost::format> entries;
-        // Framerate
-        entries.push_back(boost::format ("framerate: %.1f") % grabber_second_.getFramesPerSecond ());
-
-        for (size_t i = 0; i < entries.size (); ++i)
-        {
-          std::string name = boost::str (name_fmt % i);
-          std::string entry = boost::str (entries[i]);
-          if (!viewer_second_.updateText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name))
-            viewer_second_.addText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name);
-        }
+        boost::mutex::scoped_lock lock (new_cloud_mutex_);
+        new_cloud_ = cloud;
       }
+    }
 
-      pcl::LibRealSenseGrabber& grabber_;
-      pcl::visualization::PCLVisualizer viewer_;
-      boost::signals2::connection connection_;
+    void
+    cloudCallback_second (typename PointCloudT::ConstPtr cloud)
+    {
+      if (!viewer_second_.wasStopped ())
+      {
+        boost::mutex::scoped_lock lock (new_cloud_mutex_second_);
+        new_cloud_second_ = cloud;
+      }
+    }
 
-      mutable boost::mutex new_cloud_mutex_;
-      typename PointCloudT::ConstPtr new_cloud_;
-      typename PointCloudT::ConstPtr last_cloud_;
+    void displaySettings ()
+    {
+      const int dx = 5;
+      const int dy = 14;
+      const int fs = 10;
+      boost::format name_fmt ("text%i");
+      std::vector<boost::format> entries;
+      // Framerate
+      entries.push_back(boost::format ("framerate: %.1f") % grabber_.getFramesPerSecond ());
+
+      for (size_t i = 0; i < entries.size (); ++i)
+      {
+        std::string name = boost::str (name_fmt % i);
+        std::string entry = boost::str (entries[i]);
+        if (!viewer_.updateText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name))
+          viewer_.addText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name);
+      }
+    }
+
+    void displaySettings_second ()
+    {
+      const int dx = 5;
+      const int dy = 14;
+      const int fs = 10;
+      boost::format name_fmt ("text%i");
+      std::vector<boost::format> entries;
+      // Framerate
+      entries.push_back(boost::format ("framerate: %.1f") % grabber_second_.getFramesPerSecond ());
+
+      for (size_t i = 0; i < entries.size (); ++i)
+      {
+        std::string name = boost::str (name_fmt % i);
+        std::string entry = boost::str (entries[i]);
+        if (!viewer_second_.updateText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name))
+          viewer_second_.addText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name);
+      }
+    }
+
+    pcl::LibRealSenseGrabber& grabber_;
+    pcl::visualization::PCLVisualizer viewer_;
+    boost::signals2::connection connection_;
+
+    mutable boost::mutex new_cloud_mutex_;
+    typename PointCloudT::ConstPtr new_cloud_;
+    typename PointCloudT::ConstPtr last_cloud_;
 
 
-      pcl::LibRealSenseGrabber& grabber_second_;
-      pcl::visualization::PCLVisualizer viewer_second_;
-      boost::signals2::connection connection_second_;
-      mutable boost::mutex new_cloud_mutex_second_;
-      typename PointCloudT::ConstPtr new_cloud_second_;
-      typename PointCloudT::ConstPtr last_cloud_second_;
+    pcl::LibRealSenseGrabber& grabber_second_;
+    pcl::visualization::PCLVisualizer viewer_second_;
+    boost::signals2::connection connection_second_;
+    mutable boost::mutex new_cloud_mutex_second_;
+    typename PointCloudT::ConstPtr new_cloud_second_;
+    typename PointCloudT::ConstPtr last_cloud_second_;
 
 
 

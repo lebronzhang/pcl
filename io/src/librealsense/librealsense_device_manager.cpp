@@ -59,10 +59,10 @@ pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGra
 {
   boost::mutex::scoped_lock lock (mutex_);
   if(context_.get_device_count () == 0)
- 	  THROW_IO_EXCEPTION ("no connected devices");
+    THROW_IO_EXCEPTION ("no connected devices");
   for(int i = 0; i < context_.get_device_count (); i++)
   {
- 	  if (!isCaptured (context_.get_device (i)->get_serial ()))
+    if (!isCaptured (context_.get_device (i)->get_serial ()))
       return (captureDevice (grabber, context_.get_device (i)));
   } 
   THROW_IO_EXCEPTION ("all connected devices are captured by other grabbers");
