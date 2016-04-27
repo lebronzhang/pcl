@@ -162,12 +162,12 @@ if(build)
 
     if(WITH_LIBREALSENSE)
         set(LIBREALSENSE_GRABBER_INCLUDES
-            include/pcl/io/realsense_grabber.h
+            include/pcl/io/librealsense_grabber.h
         )
         set(LIBREALSENSE_GRABBER_SOURCES
-            src/realsense_grabber.cpp
-            src/realsense/realsense_grabber_impl.cpp
-            src/realsense/realsense_device_manager.cpp
+            src/librealsense_grabber.cpp
+            src/librealsense/librealsense_grabber_impl.cpp
+            src/librealsense/librealsense_device_manager.cpp
         )
     endif()
 

@@ -36,8 +36,8 @@
  */
 
 
-#ifndef PCL_IO_REALSENSE_DEVICE_MANAGER_H
-#define PCL_IO_REALSENSE_DEVICE_MANAGER_H
+#ifndef PCL_IO_LIBREALSENSE_DEVICE_MANAGER_H
+#define PCL_IO_LIBREALSENSE_DEVICE_MANAGER_H
 
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
@@ -51,17 +51,19 @@ namespace pcl
 {
   namespace io
   {
- 	namespace realsense
+ 	namespace librealsense
  	{
- 	  struct RealSenseGrabberImpl;
+ 	  struct LibRealSenseGrabberImpl;
 
- 	  class PCL_EXPORTS RealSenseDeviceManager : boost::noncopyable
+      /** A helper class for enumerating and managing access to RealSense
+        * devices. */
+ 	  class PCL_EXPORTS LibRealSenseDeviceManager : boost::noncopyable
  	  {
  	    public:
 
- 		  typedef boost::shared_ptr<RealSenseDeviceManager> Ptr;
+		  typedef boost::shared_ptr<LibRealSenseDeviceManager> Ptr;
 
- 		  static Ptr&
+          static Ptr&
  		  getInstance ()
  		  {
  		    static Ptr instance;
@@ -70,7 +72,7 @@ namespace pcl
  		        boost::mutex::scoped_lock lock (mutex_);
  			    if (!instance)
  			      {
- 			        instance.reset (new RealSenseDeviceManager);
+ 			        instance.reset (new LibRealSenseDeviceManager);
  			      }
  		      }
  		    return (instance);
@@ -86,17 +88,17 @@ namespace pcl
 		  /** Capture first available device and associate it with a given
 		  * grabber instance. */
 		  std::string
-		  captureDevice (RealSenseGrabberImpl* grabber);
+		  captureDevice (LibRealSenseGrabberImpl* grabber);
 
 		  /** Capture the device with given index and associate it with a given
 		  * grabber instance. */
 		  std::string
-		  captureDevice (RealSenseGrabberImpl* grabber, size_t index);
+		  captureDevice (LibRealSenseGrabberImpl* grabber, size_t index);
 
 		  /** Capture the device with given serial number and associate it with
 		  * a given grabber instance. */
 		  std::string
-		  captureDevice (RealSenseGrabberImpl* grabber, const std::string& sn);
+		  captureDevice (LibRealSenseGrabberImpl* grabber, const std::string& sn);
 
 		  /** Release RealSense device with given serial number. */
 		  void
@@ -110,14 +112,14 @@ namespace pcl
 		  void
 		  stopDevice (const std::string& sn);
 
-		  ~RealSenseDeviceManager ();
+		  ~LibRealSenseDeviceManager ();
 
 		private:
 
-		  RealSenseDeviceManager ();
+		  LibRealSenseDeviceManager ();
 
 		  std::string
-		  captureDevice (RealSenseGrabberImpl* grabber, rs::device* device);
+		  captureDevice (LibRealSenseGrabberImpl* grabber, rs::device* device);
 
 		  inline bool
 		  isCaptured (const std::string& sn) const
@@ -131,8 +133,8 @@ namespace pcl
 
 		  struct CapturedDevice
 		  {
-		    RealSenseGrabberImpl* grabber;
-		    rs::device* realsense_device;
+		    LibRealSenseGrabberImpl* grabber;
+		    rs::device* librealsense_device;
 		  };
 
 		  void
@@ -148,4 +150,4 @@ namespace pcl
   } // namespace io
 } //namespace pcl
 
-#endif /* PCL_IO_REALSENSE_DEVICE_MANAGER_H */
+#endif /* PCL_IO_LIBREALSENSE_DEVICE_MANAGER_H */

@@ -35,46 +35,46 @@
  *
  */
 
-#include <pcl/io/realsense_grabber.h>
-#include <pcl/io/realsense/realsense_grabber_impl.h>
+#include <pcl/io/librealsense_grabber.h>
+#include <pcl/io/librealsense/librealsense_grabber_impl.h>
 
-pcl::RealSenseGrabber::RealSenseGrabber (const std::string& device_id)
+pcl::LibRealSenseGrabber::LibRealSenseGrabber (const std::string& device_id)
 : Grabber ()
-, p_ (new pcl::io::realsense::RealSenseGrabberImpl (this, device_id))
+, p_ (new pcl::io::librealsense::LibRealSenseGrabberImpl (this, device_id))
 {
 }
 
-pcl::RealSenseGrabber::~RealSenseGrabber () throw ()
+pcl::LibRealSenseGrabber::~LibRealSenseGrabber () throw ()
 {
   delete p_;
 }
 
 void
-pcl::RealSenseGrabber::start ()
+pcl::LibRealSenseGrabber::start ()
 {
   p_->start ();
 }
 
 void
-pcl::RealSenseGrabber::stop ()
+pcl::LibRealSenseGrabber::stop ()
 {
   p_->stop ();
 }
 
 bool
-pcl::RealSenseGrabber::isRunning () const
+pcl::LibRealSenseGrabber::isRunning () const
 {
   return (p_->is_running_);
 }
 
 float
-pcl::RealSenseGrabber::getFramesPerSecond () const
+pcl::LibRealSenseGrabber::getFramesPerSecond () const
 {
   return (p_->getFramesPerSecond ());
 }
 
 std::string
-pcl::RealSenseGrabber::getDeviceSerialNumber () const
+pcl::LibRealSenseGrabber::getDeviceSerialNumber () const
 {
   return (p_->device_id_);
 }

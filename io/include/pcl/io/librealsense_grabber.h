@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef PCL_IO_REALSENSE_GRABBER_H
-#define PCL_IO_REALSENSE_GRABBER_H
+#ifndef PCL_IO_LIBREALSENSE_GRABBER_H
+#define PCL_IO_LIBREALSENSE_GRABBER_H
 
 #include <pcl/io/grabber.h>
 #include <pcl/point_cloud.h>
@@ -46,7 +46,7 @@ namespace pcl
 {
 
   // Forward declaration of a class that contains actual grabber implementation
-  namespace io { namespace realsense { struct RealSenseGrabberImpl; } }
+  namespace io { namespace librealsense { struct LibRealSenseGrabberImpl; } }
 
   /** Grabber for RealSense devices (e.g. RealSense R200, RealSense F200).
     *
@@ -54,17 +54,17 @@ namespace pcl
     *
     * \author Lebron Zhang
     * \ingroup io */
-    class PCL_EXPORTS RealSenseGrabber : public Grabber
+    class PCL_EXPORTS LibRealSenseGrabber : public Grabber
   {
 
     public:
 
       typedef
-        void (sig_cb_realsense_point_cloud)
+        void (sig_cb_librealsense_point_cloud)
           (const pcl::PointCloud<pcl::PointXYZ>::ConstPtr&);
 
       typedef
-        void (sig_cb_realsense_point_cloud_rgba)
+        void (sig_cb_librealsense_point_cloud_rgba)
           (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&);
 
       /** Create a grabber for a RealSense device.
@@ -80,10 +80,10 @@ namespace pcl
         * number, an index (with '#' prefix), or an empty string (to select the
         * first available device)
         */
-      RealSenseGrabber (const std::string& device_id = "");
+      LibRealSenseGrabber (const std::string& device_id = "");
 
       virtual
-      ~RealSenseGrabber () throw ();
+      ~LibRealSenseGrabber () throw ();
 
       virtual void
       start ();
@@ -97,7 +97,7 @@ namespace pcl
       virtual std::string
       getName () const
       {
-        return (std::string ("RealSenseGrabber"));
+        return (std::string ("LibRealSenseGrabber"));
       }
 
       virtual float
@@ -109,12 +109,12 @@ namespace pcl
 
     private:
 
-      pcl::io::realsense::RealSenseGrabberImpl* p_;
-      friend struct pcl::io::realsense::RealSenseGrabberImpl;
+      pcl::io::librealsense::LibRealSenseGrabberImpl* p_;
+      friend struct pcl::io::librealsense::LibRealSenseGrabberImpl;
 
   };
 
 }
 
-#endif /* PCL_IO_REALSENSE_GRABBER_H */
+#endif /* PCL_IO_LIBREALSENSE_GRABBER_H */
 

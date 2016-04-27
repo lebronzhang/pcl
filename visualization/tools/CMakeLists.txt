@@ -63,7 +63,7 @@ if(WITH_RSSDK)
 endif()
 
 if(WITH_LIBREALSENSE)
-    PCL_ADD_EXECUTABLE_OPT_BUNDLE(pcl_realsense_viewer ${SUBSYS_NAME} realsense_viewer.cpp)
-    target_link_libraries(pcl_realsense_viewer pcl_common pcl_io pcl_visualization)
+    PCL_ADD_EXECUTABLE_OPT_BUNDLE(pcl_librealsense_viewer ${SUBSYS_NAME} librealsense_viewer.cpp)
+    target_link_libraries(pcl_librealsense_viewer pcl_common pcl_io pcl_visualization)
 endif()
 

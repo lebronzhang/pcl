@@ -38,71 +38,71 @@
 #include <boost/lexical_cast.hpp>
 #include <librealsense/rs.hpp>
 #include <pcl/common/io.h>
-#include <pcl/io/realsense_grabber.h>
-#include <pcl/io/realsense/realsense_grabber_impl.h>
-#include <pcl/io/realsense/realsense_device_manager.h>
+#include <pcl/io/librealsense_grabber.h>
+#include <pcl/io/librealsense/librealsense_grabber_impl.h>
+#include <pcl/io/librealsense/librealsense_device_manager.h>
 
 
-pcl::io::realsense::RealSenseGrabberImpl::RealSenseGrabberImpl (RealSenseGrabber* parent, const std::string& device_id)
+pcl::io::librealsense::LibRealSenseGrabberImpl::LibRealSenseGrabberImpl (LibRealSenseGrabber* parent, const std::string& device_id)
 : p_ (parent)
 , is_running_ (false)
 , fps_ (0)
 {
   if (device_id == "")
   {
-    device_id_ = RealSenseDeviceManager::getInstance ()->captureDevice (this);
+    device_id_ = LibRealSenseDeviceManager::getInstance ()->captureDevice (this);
   }
   else if (device_id[0] == '#')
-    device_id_ = RealSenseDeviceManager::getInstance ()->captureDevice (this, boost::lexical_cast<int> (device_id.substr (1)) - 1);
+    device_id_ = LibRealSenseDeviceManager::getInstance ()->captureDevice (this, boost::lexical_cast<int> (device_id.substr (1)) - 1);
   else
-    device_id_ = RealSenseDeviceManager::getInstance ()->captureDevice (this, device_id);
+    device_id_ = LibRealSenseDeviceManager::getInstance ()->captureDevice (this, device_id);
 
-  point_cloud_signal_ = p_->createSignal<sig_cb_realsense_point_cloud> ();
-  point_cloud_rgba_signal_ = p_->createSignal<sig_cb_realsense_point_cloud_rgba> ();
+  point_cloud_signal_ = p_->createSignal<sig_cb_librealsense_point_cloud> ();
+  point_cloud_rgba_signal_ = p_->createSignal<sig_cb_librealsense_point_cloud_rgba> ();
 }
 
-pcl::io::realsense::RealSenseGrabberImpl::~RealSenseGrabberImpl () throw ()
+pcl::io::librealsense::LibRealSenseGrabberImpl::~LibRealSenseGrabberImpl () throw ()
 {
   stop ();
 
-  RealSenseDeviceManager::getInstance ()->releaseDevice (device_id_);
+  LibRealSenseDeviceManager::getInstance ()->releaseDevice (device_id_);
 
-  p_->disconnect_all_slots<sig_cb_realsense_point_cloud> ();
-  p_->disconnect_all_slots<sig_cb_realsense_point_cloud_rgba> ();
+  p_->disconnect_all_slots<sig_cb_librealsense_point_cloud> ();
+  p_->disconnect_all_slots<sig_cb_librealsense_point_cloud_rgba> ();
 }
 
 void
-pcl::io::realsense::RealSenseGrabberImpl::start ()
+pcl::io::librealsense::LibRealSenseGrabberImpl::start ()
 {
-  need_xyz_ = p_->num_slots<sig_cb_realsense_point_cloud> () > 0;
-  need_xyzrgba_ = p_->num_slots<sig_cb_realsense_point_cloud_rgba> () > 0;
+  need_xyz_ = p_->num_slots<sig_cb_librealsense_point_cloud> () > 0;
+  need_xyzrgba_ = p_->num_slots<sig_cb_librealsense_point_cloud_rgba> () > 0;
 
   if (!is_running_)
   {
-    RealSenseDeviceManager::getInstance ()->startDevice (device_id_);
+    LibRealSenseDeviceManager::getInstance ()->startDevice (device_id_);
     is_running_ = true;
   }
 }
 
 void
-pcl::io::realsense::RealSenseGrabberImpl::stop ()
+pcl::io::librealsense::LibRealSenseGrabberImpl::stop ()
 {
   if (is_running_)
   {
-    RealSenseDeviceManager::getInstance ()->stopDevice (device_id_);
+    LibRealSenseDeviceManager::getInstance ()->stopDevice (device_id_);
     is_running_ = false;
     fps_ = 0;
   }
 }
 
 float
-pcl::io::realsense::RealSenseGrabberImpl::getFramesPerSecond () const
+pcl::io::librealsense::LibRealSenseGrabberImpl::getFramesPerSecond () const
 {
   return fps_;
 }
 
 void
-pcl::io::realsense::RealSenseGrabberImpl::onDataReceived (const uint16_t* depth_image, const uint8_t* color_image, rs::intrinsics depth_intrin, rs::intrinsics color_intrin, rs::extrinsics depth_to_color, float scale, int fps)
+pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* depth_image, const uint8_t* color_image, rs::intrinsics depth_intrin, rs::intrinsics color_intrin, rs::extrinsics depth_to_color, float scale, int fps)
 {
   if(fps_ < 1)
   {

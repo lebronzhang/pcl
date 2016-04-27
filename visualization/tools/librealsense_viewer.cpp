@@ -45,7 +45,7 @@
 #include <pcl/console/print.h>
 #include <pcl/console/parse.h>
 #include <pcl/io/io_exception.h>
-#include <pcl/io/realsense_grabber.h>
+#include <pcl/io/librealsense_grabber.h>
 #include <pcl/visualization/pcl_visualizer.h> 
 
 using namespace pcl::console;
@@ -56,7 +56,7 @@ printHelp (int, char **argv)
   std::cout << std::endl;
   std::cout << "****************************************************************************" << std::endl;
   std::cout << "*                                                                          *" << std::endl;
-  std::cout << "*                       REALSENSE VIEWER - Usage Guide                     *" << std::endl;
+  std::cout << "*                       LIBREALSENSE VIEWER - Usage Guide                  *" << std::endl;
   std::cout << "*                                                                          *" << std::endl;
   std::cout << "****************************************************************************" << std::endl;
   std::cout << std::endl;
@@ -65,15 +65,15 @@ printHelp (int, char **argv)
 void
 printDeviceList ()
 {
-	typedef boost::shared_ptr<pcl::RealSenseGrabber> RealSenseGrabberPtr;
-	std::vector<RealSenseGrabberPtr> grabbers;
+	typedef boost::shared_ptr<pcl::LibRealSenseGrabber> LibRealSenseGrabberPtr;
+	std::vector<LibRealSenseGrabberPtr> grabbers;
 	std::cout << "Connected devices: ";
   	boost::format fmt ("\n  #%i  %s");
   	while (true)
   	{
     	try
     	{
-     		grabbers.push_back (RealSenseGrabberPtr (new pcl::RealSenseGrabber));
+     		grabbers.push_back (LibRealSenseGrabberPtr (new pcl::LibRealSenseGrabber));
       		std::cout << boost::str (fmt % grabbers.size () % grabbers.back ()->getDeviceSerialNumber ());
     	}
     	catch (pcl::io::IOException& e)
@@ -89,28 +89,28 @@ printDeviceList ()
 
 
 template <typename PointT>
-class RealSenseViewer
+class LibRealSenseViewer
 {
 	public:
 		typedef pcl::PointCloud<PointT> PointCloudT;
 
-		RealSenseViewer (pcl::RealSenseGrabber& grabber)
+		LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber)
     	: grabber_ (grabber)
-    	, viewer_ ("RealSense Viewer")
+    	, viewer_ ("LibRealSense Viewer")
     	, grabber_second_ (grabber)
     	, viewer_second_ (viewer_)
     	{
     	}
 
-		RealSenseViewer (pcl::RealSenseGrabber& grabber, pcl::RealSenseGrabber& grabber_second)
+		LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber, pcl::LibRealSenseGrabber& grabber_second)
     	: grabber_ (grabber)
-    	, viewer_ ("RealSense Viewer One")
+    	, viewer_ ("LibRealSense Viewer One")
     	,grabber_second_ (grabber_second)
-    	, viewer_second_ ("RealSense Viewer Two")
+    	, viewer_second_ ("LibRealSense Viewer Two")
     	{
     	}
 
-    	~RealSenseViewer ()
+    	~LibRealSenseViewer ()
     	{
       		connection_.disconnect ();
     	}
@@ -118,7 +118,7 @@ class RealSenseViewer
     	void
     	run ()
     	{
-      	boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&RealSenseViewer::cloudCallback, this, _1);
+      	boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
       	connection_ = grabber_.registerCallback (f);
       	grabber_.start ();
       	while (!viewer_.wasStopped ())
@@ -143,11 +143,11 @@ class RealSenseViewer
     	void
     	start ()
     	{
-      	boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&RealSenseViewer::cloudCallback, this, _1);
+      	boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
       	connection_ = grabber_.registerCallback (f);
       	grabber_.start ();
 
-      	boost::function<void (const typename PointCloudT::ConstPtr&)> f_second_ = boost::bind (&RealSenseViewer::cloudCallback_second, this, _1);
+      	boost::function<void (const typename PointCloudT::ConstPtr&)> f_second_ = boost::bind (&LibRealSenseViewer::cloudCallback_second, this, _1);
       	connection_second_ = grabber_second_.registerCallback (f_second_);
       	grabber_second_.start ();
 
@@ -253,7 +253,7 @@ class RealSenseViewer
         }
       }
 
-      pcl::RealSenseGrabber& grabber_;
+      pcl::LibRealSenseGrabber& grabber_;
       pcl::visualization::PCLVisualizer viewer_;
       boost::signals2::connection connection_;
 
@@ -262,7 +262,7 @@ class RealSenseViewer
       typename PointCloudT::ConstPtr last_cloud_;
 
 
-      pcl::RealSenseGrabber& grabber_second_;
+      pcl::LibRealSenseGrabber& grabber_second_;
       pcl::visualization::PCLVisualizer viewer_second_;
       boost::signals2::connection connection_second_;
       mutable boost::mutex new_cloud_mutex_second_;
@@ -276,7 +276,7 @@ class RealSenseViewer
 int
 main (int argc, char** argv)
 {
-  print_info ("Viewer for RealSense devices (run with --help for more information)\n", argv[0]);
+  print_info ("Viewer for LibRealSense devices (run with --help for more information)\n", argv[0]);
 
   if (find_switch (argc, argv, "--help") || find_switch (argc, argv, "-h"))
   {
@@ -308,21 +308,21 @@ main (int argc, char** argv)
 
   try
   {
-    pcl::RealSenseGrabber grabber (device_id);
+    pcl::LibRealSenseGrabber grabber (device_id);
     if (xyz_only)
     {
-      RealSenseViewer<pcl::PointXYZ> viewer (grabber);
+      LibRealSenseViewer<pcl::PointXYZ> viewer (grabber);
       viewer.run ();
     }
     else
     {
       //Signle viewer
-      RealSenseViewer<pcl::PointXYZRGBA> viewer (grabber);
+      LibRealSenseViewer<pcl::PointXYZRGBA> viewer (grabber);
       viewer.run ();
 
       //Two viewers
-      /*pcl::RealSenseGrabber grabber1 (device_id);
-      RealSenseViewer<pcl::PointXYZRGBA> viewer (grabber, grabber1);
+      /*pcl::LibRealSenseGrabber grabber1 (device_id);
+      LibRealSenseViewer<pcl::PointXYZRGBA> viewer (grabber, grabber1);
       viewer.start ();*/
     }
   }

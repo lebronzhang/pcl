@@ -35,14 +35,14 @@
  *
  */
 
-#ifndef PCL_IO_REALSENSE_GRABBER_IMPL_H
-#define PCL_IO_REALSENSE_GRABBER_IMPL_H
+#ifndef PCL_IO_LIBREALSENSE_GRABBER_IMPL_H
+#define PCL_IO_LIBREALSENSE_GRABBER_IMPL_H
 
 #include <librealsense/rs.hpp>
 
 #include <pcl/common/time.h>
 #include <pcl/io/buffers.h>
-#include <pcl/io/realsense_grabber.h>
+#include <pcl/io/librealsense_grabber.h>
 
 namespace pcl
 {
@@ -50,27 +50,27 @@ namespace pcl
   namespace io
   {
 
-    namespace realsense
+    namespace librealsense
     {
 
-      struct RealSenseGrabberImpl
+      struct LibRealSenseGrabberImpl
       {
 
         /// Parent grabber
-        RealSenseGrabber* p_;
+        LibRealSenseGrabber* p_;
 
         /// Serial number of the device captured by this grabber
         std::string device_id_;
 
         bool is_running_;
 
-        typedef RealSenseGrabber::sig_cb_realsense_point_cloud sig_cb_realsense_point_cloud;
-        typedef RealSenseGrabber::sig_cb_realsense_point_cloud_rgba sig_cb_realsense_point_cloud_rgba;
+        typedef LibRealSenseGrabber::sig_cb_librealsense_point_cloud sig_cb_librealsense_point_cloud;
+        typedef LibRealSenseGrabber::sig_cb_librealsense_point_cloud_rgba sig_cb_librealsense_point_cloud_rgba;
 
         /// Signal to indicate whether new XYZ cloud is available
-        boost::signals2::signal<sig_cb_realsense_point_cloud>* point_cloud_signal_;
+        boost::signals2::signal<sig_cb_librealsense_point_cloud>* point_cloud_signal_;
         /// Signal to indicate whether new XYZRGBA cloud is available
-        boost::signals2::signal<sig_cb_realsense_point_cloud_rgba>* point_cloud_rgba_signal_;
+        boost::signals2::signal<sig_cb_librealsense_point_cloud_rgba>* point_cloud_rgba_signal_;
 
         /// Indicates whether there are subscribers for PointXYZ signal. This is
         /// computed and stored on start()
@@ -96,9 +96,9 @@ namespace pcl
         int color_height_;
         int color_size_;
 
-        RealSenseGrabberImpl (RealSenseGrabber* parent, const std::string& device_id);
+        LibRealSenseGrabberImpl (LibRealSenseGrabber* parent, const std::string& device_id);
 
-        ~RealSenseGrabberImpl () throw ();
+        ~LibRealSenseGrabberImpl () throw ();
 
         void
         start ();
@@ -111,8 +111,8 @@ namespace pcl
 
         /** A callback for processing data.
           *
-          * It is supposed to be called from the pcl::io::realsense::RealSenseDeviceManager::run thread that
-          * is managed by RealSenseDeviceManager. */
+          * It is supposed to be called from the pcl::io::librealsense::LibRealSenseDeviceManager::run thread that
+          * is managed by LibRealSenseDeviceManager. */
         void
         onDataReceived (const uint16_t* depth_image, const uint8_t* color_image, rs::intrinsics depth_intrin, rs::intrinsics color_intrin, rs::extrinsics depth_to_color, float scale,int fps);
 
@@ -124,5 +124,5 @@ namespace pcl
 
 }
 
-#endif /* PCL_IO_REALSENSE_GRABBER_IMPL_H */
+#endif /* PCL_IO_LIBREALSENSE_GRABBER_IMPL_H */
 
