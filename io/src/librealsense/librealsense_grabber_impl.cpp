@@ -64,8 +64,7 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::LibRealSenseGrabberImpl (LibReal
 
 pcl::io::librealsense::LibRealSenseGrabberImpl::~LibRealSenseGrabberImpl () throw ()
 {
-  stop ();
-
+  if(is_running_) stop ();
   LibRealSenseDeviceManager::getInstance ()->releaseDevice (device_id_);
 
   p_->disconnect_all_slots<sig_cb_librealsense_point_cloud> ();

@@ -51,7 +51,6 @@ pcl::io::librealsense::LibRealSenseDeviceManager::LibRealSenseDeviceManager ()
 
 pcl::io::librealsense::LibRealSenseDeviceManager::~LibRealSenseDeviceManager ()
 {
-  context_.~context();
 }
 
 
@@ -120,7 +119,7 @@ void
 pcl::io::librealsense::LibRealSenseDeviceManager::releaseDevice (const std::string& sn)
 {
   boost::mutex::scoped_lock lock (mutex_);
-  pcl::io::librealsense::LibRealSenseDeviceManager::stopDevice (sn);
+  if (!thread_close_flag_[sn]) pcl::io::librealsense::LibRealSenseDeviceManager::stopDevice (sn);
   captured_devices_.erase (sn);
   thread_close_flag_.erase (sn);
 }
@@ -134,7 +133,7 @@ pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGra
   dev.grabber = grabber;
   dev.librealsense_device = device;
   captured_devices_.insert (std::make_pair (device->get_serial (), dev));
-  thread_close_flag_.insert (std::make_pair (device->get_serial (), false));
+  thread_close_flag_.insert (std::make_pair (device->get_serial (), true));
   return (device->get_serial ());
 }
 
