@@ -1,5 +1,5 @@
 ###############################################################################
-# Find Intel librealsense
+# Find librealsense
 #
 #     find_package(librealsense)
 #
@@ -15,7 +15,7 @@ if (LIBREALSENSE_LIBRARIES AND LIBREALSENSE_INCLUDE_DIRS)
 else (LIBREALSENSE_LIBRARIES AND LIBREALSENSE_INCLUDE_DIRS)
 find_path(LIBREALSENSE_INCLUDE_DIR
           NAMES librealsense
-          PATHS /usr/local/include /usr/include /opt/local/include /sw/include) 
+          PATHS /usr/local/include /usr/include /opt/local/include /sw/include)
 
 find_library(LIBREALSENSE_LIBRARY
              NAMES librealsense.so

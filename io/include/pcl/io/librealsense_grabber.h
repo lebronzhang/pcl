@@ -3,6 +3,7 @@
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
  *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -35,8 +36,8 @@
  *
  */
 
-#ifndef PCL_IO_LIBREALSENSE_GRABBER_H
-#define PCL_IO_LIBREALSENSE_GRABBER_H
+#ifndef PCL_IO_LIBREALSENSE_GRABBER_H_
+#define PCL_IO_LIBREALSENSE_GRABBER_H_
 
 #include <pcl/io/grabber.h>
 #include <pcl/point_cloud.h>
@@ -48,7 +49,7 @@ namespace pcl
   // Forward declaration of a class that contains actual grabber implementation
   namespace io { namespace librealsense { struct LibRealSenseGrabberImpl; } }
 
-  /** Grabber for RealSense devices (e.g. RealSense R200, RealSense F200).
+  /** Grabber for RealSense devices (e.g. Intel® RealSense™ F200, SR300 and R200 cameras).
     *
     * Requires [Intel librealsense](https://github.com/IntelRealSense/librealsense).
     *
@@ -116,5 +117,4 @@ namespace pcl
 
 }
 
-#endif /* PCL_IO_LIBREALSENSE_GRABBER_H */
-
+#endif  // PCL_IO_LIBREALSENSE_GRABBER_H_

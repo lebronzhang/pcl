@@ -3,6 +3,7 @@
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
  *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -36,12 +37,12 @@
  */
 
 
-#ifndef PCL_IO_LIBREALSENSE_DEVICE_MANAGER_H
-#define PCL_IO_LIBREALSENSE_DEVICE_MANAGER_H
+#ifndef PCL_IO_LIBREALSENSE_LIBRAELSENSE_DEVICE_MANAGER_H_
+#define PCL_IO_LIBREALSENSE_LIBRAELSENSE_DEVICE_MANAGER_H_
 
-#include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/utility.hpp>
 
 #include <pcl/pcl_exports.h>
 
@@ -67,7 +68,7 @@ namespace pcl
           getInstance ()
           {
             static Ptr instance;
-            if (!instance)	
+            if (!instance)
             {
               boost::mutex::scoped_lock lock (mutex_);
               if (!instance)
@@ -133,7 +134,7 @@ namespace pcl
 
           struct CapturedDevice
           {
-            LibRealSenseGrabberImpl* grabber;          
+            LibRealSenseGrabberImpl* grabber;
             rs::device* librealsense_device;
           };
 
@@ -150,4 +151,4 @@ namespace pcl
   } // namespace io
 } //namespace pcl
 
-#endif /* PCL_IO_LIBREALSENSE_DEVICE_MANAGER_H */
+#endif  // PCL_IO_LIBREALSENSE_LIBRAELSENSE_DEVICE_MANAGER_H_

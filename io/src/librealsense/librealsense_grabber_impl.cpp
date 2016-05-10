@@ -3,6 +3,7 @@
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
  *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -120,7 +121,7 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
   pcl::PointCloud<pcl::PointXYZ>::Ptr xyz_cloud;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr xyzrgba_cloud;
   fps_ = fps;
-  float max_distance = 6;       // get rid of noisy data that is past 6 meters 
+  float max_distance = 6; // get rid of noisy data that is past 6 meters
   static const float nan = std::numeric_limits<float>::quiet_NaN ();
 
   memcpy (depth_data_.data (), &depth_image[0], depth_size_ * sizeof (uint16_t));
@@ -173,9 +174,9 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
                 xyz_cloud->points[i].x = xyz_cloud->points[i].y = xyz_cloud->points[i].z = (float) nan;
               continue;
             }
-            else 
+            else
             {
-              xyzrgba_cloud->points[i].x = depth_point.x;    
+              xyzrgba_cloud->points[i].x = depth_point.x;
               xyzrgba_cloud->points[i].y = -depth_point.y;
               xyzrgba_cloud->points[i].z = -depth_point.z;
               xyzrgba_cloud->points[i].r = red;
@@ -183,7 +184,7 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
               xyzrgba_cloud->points[i].b = blue;
               if (need_xyz_)
               {
-                xyz_cloud->points[i].x = depth_point.x;    
+                xyz_cloud->points[i].x = depth_point.x;
                 xyz_cloud->points[i].y = -depth_point.y;
                 xyz_cloud->points[i].z = -depth_point.z;
               }
@@ -214,9 +215,9 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
           xyz_cloud->points[i].x = xyz_cloud->points[i].y = xyz_cloud->points[i].z = (float) nan;
           continue;
         }
-        else 
+        else
         {
-          xyz_cloud->points[i].x = depth_point.x;   
+          xyz_cloud->points[i].x = depth_point.x;
           xyz_cloud->points[i].y = -depth_point.y;
           xyz_cloud->points[i].z = -depth_point.z;
         }
@@ -224,11 +225,8 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
     }
     point_cloud_signal_->operator () (xyz_cloud);
   }
-  
   else
   {
     //do nothing
   }
 }
-
-

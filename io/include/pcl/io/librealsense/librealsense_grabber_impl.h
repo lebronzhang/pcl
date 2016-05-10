@@ -3,6 +3,7 @@
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
  *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -35,8 +36,8 @@
  *
  */
 
-#ifndef PCL_IO_LIBREALSENSE_GRABBER_IMPL_H
-#define PCL_IO_LIBREALSENSE_GRABBER_IMPL_H
+#ifndef PCL_IO_LIBREALSENSE_LIBREALSENSE_GRABBER_IMPL_H_
+#define PCL_IO_LIBREALSENSE_LIBREALSENSE_GRABBER_IMPL_H
 
 #include <librealsense/rs.hpp>
 
@@ -124,5 +125,4 @@ namespace pcl
 
 }
 
-#endif /* PCL_IO_LIBREALSENSE_GRABBER_IMPL_H */
-
+#endif  // PCL_IO_LIBREALSENSE_LIBREALSENSE_GRABBER_IMPL_H_
