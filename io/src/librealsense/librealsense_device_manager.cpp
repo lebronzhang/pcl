@@ -3,6 +3,7 @@
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
  *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -64,7 +65,7 @@ pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGra
   {
     if (!isCaptured (context_.get_device (i)->get_serial ()))
       return (captureDevice (grabber, context_.get_device (i)));
-  } 
+  }
   THROW_IO_EXCEPTION ("all connected devices are captured by other grabbers");
   return ("");  // never reached, needed just to silence -Wreturn-type warning
 }
@@ -101,7 +102,7 @@ void
 pcl::io::librealsense::LibRealSenseDeviceManager::startDevice (const std::string& sn)
 {
   CapturedDevice& dev = captured_devices_[sn];
-  boost::thread device_thread = boost::thread (boost::bind (&pcl::io::librealsense::LibRealSenseDeviceManager::run, this, dev, sn)); 
+  boost::thread device_thread = boost::thread (boost::bind (&pcl::io::librealsense::LibRealSenseDeviceManager::run, this, dev, sn));
   thread_close_flag_[sn] = false;
 }
 
@@ -110,7 +111,7 @@ pcl::io::librealsense::LibRealSenseDeviceManager::stopDevice (const std::string&
 {
   CapturedDevice& dev = captured_devices_[sn];
   thread_close_flag_[sn] = true;
-  //hang up the thread to make sure the closing thread not been blocked by waitting for frames 
+  //hang up the thread to make sure the closing thread not been blocked by waitting for frames
   usleep (40000);
   dev.librealsense_device->stop ();
 }
@@ -138,10 +139,10 @@ pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGra
 }
 
 
-void 
+void
 pcl::io::librealsense::LibRealSenseDeviceManager::run (const CapturedDevice& dev, const std::string& sn)
 {
-  int frames = 0; 
+  int frames = 0;
   float time = 0, fps = 0;
   auto t0 = std::chrono::high_resolution_clock::now ();
   dev.librealsense_device->enable_stream (rs::stream::depth, rs::preset::best_quality);
@@ -169,5 +170,5 @@ pcl::io::librealsense::LibRealSenseDeviceManager::run (const CapturedDevice& dev
     rs::extrinsics depth_to_color = dev.librealsense_device->get_extrinsics (rs::stream::depth, rs::stream::color);
     float scale = dev.librealsense_device->get_depth_scale ();
     dev.grabber->onDataReceived (depth_image, color_image, depth_intrin, color_intrin, depth_to_color, scale, fps);
-  }	
+  }
 }

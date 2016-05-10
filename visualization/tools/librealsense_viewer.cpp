@@ -3,6 +3,7 @@
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
  *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -46,7 +47,7 @@
 #include <pcl/console/parse.h>
 #include <pcl/io/io_exception.h>
 #include <pcl/io/librealsense_grabber.h>
-#include <pcl/visualization/pcl_visualizer.h> 
+#include <pcl/visualization/pcl_visualizer.h>
 
 using namespace pcl::console;
 
@@ -130,7 +131,7 @@ class LibRealSenseViewer
           {
             viewer_.addPointCloud (new_cloud_, "cloud");
             viewer_.resetCamera ();
-          }  
+          }
           displaySettings ();
           last_cloud_ = new_cloud_;
           new_cloud_.reset ();
@@ -169,7 +170,6 @@ class LibRealSenseViewer
             last_cloud_ = new_cloud_;
             new_cloud_.reset ();
           }
-              
           viewer_.spinOnce (1, true);
         }
         if (!viewer_second_.wasStopped ())
@@ -186,7 +186,6 @@ class LibRealSenseViewer
             last_cloud_second_= new_cloud_second_;
             new_cloud_second_.reset ();
           }
-              
           viewer_second_.spinOnce (1, true);
         }
       }
