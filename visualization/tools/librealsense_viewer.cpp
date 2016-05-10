@@ -61,6 +61,23 @@ printHelp (int, char **argv)
   std::cout << "*                                                                          *" << std::endl;
   std::cout << "****************************************************************************" << std::endl;
   std::cout << std::endl;
+  std::cout << "Usage: " << argv[0] << " [Options] device_id" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Options:" << std::endl;
+  std::cout << std::endl;
+  std::cout << "     --help, -h : Show this help"                                             << std::endl;
+  std::cout << "     --list, -l : List connected RealSense devices"                           << std::endl;
+  std::cout << "     --xyz      : View XYZ-only clouds"                                       << std::endl;
+  std::cout << std::endl;
+  std::cout << "Notes:"                                                                       << std::endl;
+  std::cout << std::endl;
+  std::cout << "   The device to grab data from is selected using device_id argument. It"     << std::endl;
+  std::cout << "   could be either:"                                                          << std::endl;
+  std::cout << "     * serial number (e.g. 1271000184)"                                       << std::endl;
+  std::cout << "     * device index (e.g. #2 for the second connected device)"                << std::endl;
+  std::cout << std::endl;
+  std::cout << "   If device_id is not given, then the first available device will be used."  << std::endl;
+  std::cout << std::endl;
 }
 
 void
