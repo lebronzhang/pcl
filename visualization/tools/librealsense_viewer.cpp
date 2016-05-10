@@ -42,11 +42,11 @@
 #include <boost/format.hpp>
 
 #include <pcl/io/pcd_io.h>
+#include <pcl/io/io_exception.h>
+#include <pcl/io/librealsense_grabber.h>
 #include <pcl/common/time.h>
 #include <pcl/console/print.h>
 #include <pcl/console/parse.h>
-#include <pcl/io/io_exception.h>
-#include <pcl/io/librealsense_grabber.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
 using namespace pcl::console;
@@ -115,16 +115,6 @@ class LibRealSenseViewer
     LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber)
     : grabber_ (grabber)
     , viewer_ ("LibRealSense Viewer")
-    , grabber_second_ (grabber)
-    , viewer_second_ (viewer_)
-    {
-    }
-
-    LibRealSenseViewer (pcl::LibRealSenseGrabber& grabber, pcl::LibRealSenseGrabber& grabber_second)
-    : grabber_ (grabber)
-    , viewer_ ("LibRealSense Viewer One")
-    ,grabber_second_ (grabber_second)
-    , viewer_second_ ("LibRealSense Viewer Two")
     {
     }
 
@@ -158,58 +148,6 @@ class LibRealSenseViewer
       grabber_.stop ();
     }
 
-    //Two viewers' start function
-    void
-    start ()
-    {
-      boost::function<void (const typename PointCloudT::ConstPtr&)> f = boost::bind (&LibRealSenseViewer::cloudCallback, this, _1);
-      connection_ = grabber_.registerCallback (f);
-      grabber_.start ();
-
-      boost::function<void (const typename PointCloudT::ConstPtr&)> f_second_ = boost::bind (&LibRealSenseViewer::cloudCallback_second, this, _1);
-      connection_second_ = grabber_second_.registerCallback (f_second_);
-      grabber_second_.start ();
-
-      while(!viewer_.wasStopped () || !viewer_second_.wasStopped ())
-      {
-
-        if (!viewer_.wasStopped ())
-        {
-          if (new_cloud_)
-          {
-            boost::mutex::scoped_lock lock (new_cloud_mutex_);
-            if (!viewer_.updatePointCloud (new_cloud_, "cloud"))
-            {
-              viewer_.addPointCloud (new_cloud_, "cloud");
-              viewer_.resetCamera ();
-            }
-            displaySettings ();
-            last_cloud_ = new_cloud_;
-            new_cloud_.reset ();
-          }
-          viewer_.spinOnce (1, true);
-        }
-        if (!viewer_second_.wasStopped ())
-        {
-          if (new_cloud_second_)
-          {
-            boost::mutex::scoped_lock lock (new_cloud_mutex_second_);
-            if (!viewer_second_.updatePointCloud (new_cloud_second_, "cloud_second_"))
-            {
-              viewer_second_.addPointCloud (new_cloud_second_, "cloud_second_");
-              viewer_second_.resetCamera ();
-            }
-            displaySettings_second ();
-            last_cloud_second_= new_cloud_second_;
-            new_cloud_second_.reset ();
-          }
-          viewer_second_.spinOnce (1, true);
-        }
-      }
-      grabber_.stop ();
-      grabber_second_.stop ();
-    }
-
   private:
 
     void
@@ -219,16 +157,6 @@ class LibRealSenseViewer
       {
         boost::mutex::scoped_lock lock (new_cloud_mutex_);
         new_cloud_ = cloud;
-      }
-    }
-
-    void
-    cloudCallback_second (typename PointCloudT::ConstPtr cloud)
-    {
-      if (!viewer_second_.wasStopped ())
-      {
-        boost::mutex::scoped_lock lock (new_cloud_mutex_second_);
-        new_cloud_second_ = cloud;
       }
     }
 
@@ -251,25 +179,6 @@ class LibRealSenseViewer
       }
     }
 
-    void displaySettings_second ()
-    {
-      const int dx = 5;
-      const int dy = 14;
-      const int fs = 10;
-      boost::format name_fmt ("text%i");
-      std::vector<boost::format> entries;
-      // Framerate
-      entries.push_back(boost::format ("framerate: %.1f") % grabber_second_.getFramesPerSecond ());
-
-      for (size_t i = 0; i < entries.size (); ++i)
-      {
-        std::string name = boost::str (name_fmt % i);
-        std::string entry = boost::str (entries[i]);
-        if (!viewer_second_.updateText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name))
-          viewer_second_.addText (entry, dx, dy + i * (fs + 2), fs, 1.0, 1.0, 1.0, name);
-      }
-    }
-
     pcl::LibRealSenseGrabber& grabber_;
     pcl::visualization::PCLVisualizer viewer_;
     boost::signals2::connection connection_;
@@ -277,16 +186,6 @@ class LibRealSenseViewer
     mutable boost::mutex new_cloud_mutex_;
     typename PointCloudT::ConstPtr new_cloud_;
     typename PointCloudT::ConstPtr last_cloud_;
-
-
-    pcl::LibRealSenseGrabber& grabber_second_;
-    pcl::visualization::PCLVisualizer viewer_second_;
-    boost::signals2::connection connection_second_;
-    mutable boost::mutex new_cloud_mutex_second_;
-    typename PointCloudT::ConstPtr new_cloud_second_;
-    typename PointCloudT::ConstPtr last_cloud_second_;
-
-
 
 };
 
@@ -333,14 +232,8 @@ main (int argc, char** argv)
     }
     else
     {
-      //Signle viewer
       LibRealSenseViewer<pcl::PointXYZRGBA> viewer (grabber);
       viewer.run ();
-
-      //Two viewers
-      /*pcl::LibRealSenseGrabber grabber1 (device_id);
-      LibRealSenseViewer<pcl::PointXYZRGBA> viewer (grabber, grabber1);
-      viewer.start ();*/
     }
   }
   catch (pcl::io::IOException& e)
