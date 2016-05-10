@@ -119,7 +119,6 @@ void
 pcl::io::librealsense::LibRealSenseDeviceManager::releaseDevice (const std::string& sn)
 {
   boost::mutex::scoped_lock lock (mutex_);
-  if (!thread_close_flag_[sn]) pcl::io::librealsense::LibRealSenseDeviceManager::stopDevice (sn);
   captured_devices_.erase (sn);
   thread_close_flag_.erase (sn);
 }
