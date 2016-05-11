@@ -74,7 +74,7 @@ printHelp (int, char **argv)
   std::cout << "   The device to grab data from is selected using device_id argument. It"     << std::endl;
   std::cout << "   could be either:"                                                          << std::endl;
   std::cout << "     * serial number (e.g. 1271000184)"                                       << std::endl;
-  std::cout << "     * device index (e.g. #2 for the second connected device)"                << std::endl;
+  std::cout << "     * device index (e.g. \"#2\" for the second connected device)"            << std::endl;
   std::cout << std::endl;
   std::cout << "   If device_id is not given, then the first available device will be used."  << std::endl;
   std::cout << std::endl;
@@ -209,7 +209,6 @@ main (int argc, char** argv)
   bool xyz_only = find_switch (argc, argv, "--xyz");
 
   std::string device_id;
-
   if (argc == 1 ||             // no arguments
      (argc == 2 && xyz_only))  // single argument, and it is --xyz
   {
