@@ -37,11 +37,13 @@
  */
 
 #include <boost/lexical_cast.hpp>
-#include <librealsense/rs.hpp>
+
 #include <pcl/common/io.h>
 #include <pcl/io/librealsense_grabber.h>
 #include <pcl/io/librealsense/librealsense_grabber_impl.h>
 #include <pcl/io/librealsense/librealsense_device_manager.h>
+
+#include <librealsense/rs.hpp>
 
 
 pcl::io::librealsense::LibRealSenseGrabberImpl::LibRealSenseGrabberImpl (LibRealSenseGrabber* parent, const std::string& device_id)
@@ -64,7 +66,7 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::LibRealSenseGrabberImpl (LibReal
 
 pcl::io::librealsense::LibRealSenseGrabberImpl::~LibRealSenseGrabberImpl () throw ()
 {
-  if(is_running_) stop ();
+  if (is_running_) stop ();
   LibRealSenseDeviceManager::getInstance ()->releaseDevice (device_id_);
 
   p_->disconnect_all_slots<sig_cb_librealsense_point_cloud> ();
@@ -104,7 +106,7 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::getFramesPerSecond () const
 void
 pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* depth_image, const uint8_t* color_image, rs::intrinsics depth_intrin, rs::intrinsics color_intrin, rs::extrinsics depth_to_color, float scale, int fps)
 {
-  if(fps_ < 1)
+  if (fps_ < 1)
   {
     depth_width_ = depth_intrin.width;
     depth_height_ = depth_intrin.height;
@@ -127,7 +129,6 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
 
   if (need_xyzrgba_)
   {
-
     color_data_.clear ();
     memcpy (color_data_.data (), &color_image[0], color_size_ * sizeof (uint8_t));
     xyzrgba_cloud.reset (new pcl::PointCloud<pcl::PointXYZRGBA> (depth_width_, depth_height_));
@@ -137,68 +138,72 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
       xyz_cloud.reset (new pcl::PointCloud<pcl::PointXYZ> (depth_width_, depth_height_));
       xyz_cloud->is_dense = false;
     }
-    for (int dy=0; dy < depth_height_; ++dy)
+    for (int dy = 0; dy < depth_height_; ++dy)
+    {
+      uint i = dy * depth_width_ - 1;
+      for (int dx = 0; dx < depth_width_; ++dx)
       {
-        uint i = dy * depth_width_ - 1;
-        for (int dx = 0; dx < depth_width_; ++dx)
+        i++;
+        // Retrieve the 16-bit depth value and map it into a depth in meters
+        uint16_t depth_value = depth_data_[i];
+        float depth_in_meters = depth_value * scale;
+
+        // Map from pixel coordinates in the depth image to real world co-ordinates
+        rs::float2 depth_pixel = {(float)dx, (float)dy};
+        rs::float3 depth_point = depth_intrin.deproject (depth_pixel, depth_in_meters);
+        rs::float3 color_point = depth_to_color.transform (depth_point);
+        rs::float2 color_pixel = color_intrin.project (color_point);
+
+        const int cx = (int)std::round (color_pixel.x), cy = (int)std::round (color_pixel.y);
+        int red = 0, green = 0, blue = 0;
+        if (cx < 0 || cy < 0 || cx >= color_width_ || cy >= color_height_)
         {
-          i++;
-          // Retrieve the 16-bit depth value and map it into a depth in meters
-          uint16_t depth_value = depth_data_[i];
-          float depth_in_meters = depth_value * scale;
-
-          // Map from pixel coordinates in the depth image to real world co-ordinates
-          rs::float2 depth_pixel = {(float)dx, (float)dy};
-          rs::float3 depth_point = depth_intrin.deproject (depth_pixel, depth_in_meters);
-          rs::float3 color_point = depth_to_color.transform (depth_point);
-          rs::float2 color_pixel = color_intrin.project (color_point);
-
-          const int cx = (int)std::round (color_pixel.x), cy = (int)std::round (color_pixel.y);
-          int red = 0, green = 0, blue = 0;
-          if(cx < 0 || cy < 0 || cx >= color_width_ || cy >= color_height_)
+          red = 255; green = 255; blue = 255;
+        }
+        else
+        {
+          int pos = (cy * color_width_ + cx) * 3;
+          red =  color_data_[pos];
+          green = color_data_[pos + 1];
+          blue = color_data_[pos + 2];
+        }
+        if (depth_value == 0 || depth_point.z > max_distance)
+        {
+          xyzrgba_cloud->points[i].x = xyzrgba_cloud->points[i].y = xyzrgba_cloud->points[i].z = (float) nan;
+          if (need_xyz_)
           {
-            red = 255; green = 255; blue = 255;
+            xyz_cloud->points[i].x = xyz_cloud->points[i].y = xyz_cloud->points[i].z = (float) nan;
           }
-          else
+          continue;
+        }
+        else
+        {
+          xyzrgba_cloud->points[i].x = depth_point.x;
+          xyzrgba_cloud->points[i].y = -depth_point.y;
+          xyzrgba_cloud->points[i].z = -depth_point.z;
+          xyzrgba_cloud->points[i].r = red;
+          xyzrgba_cloud->points[i].g = green;
+          xyzrgba_cloud->points[i].b = blue;
+          if (need_xyz_)
           {
-            int pos = (cy * color_width_ + cx) * 3;
-            red =  color_data_[pos];
-            green = color_data_[pos + 1];
-            blue = color_data_[pos + 2];
-          }
-            if(depth_value == 0 || depth_point.z > max_distance)
-            {
-              xyzrgba_cloud->points[i].x = xyzrgba_cloud->points[i].y = xyzrgba_cloud->points[i].z = (float) nan;
-              if (need_xyz_)
-                xyz_cloud->points[i].x = xyz_cloud->points[i].y = xyz_cloud->points[i].z = (float) nan;
-              continue;
-            }
-            else
-            {
-              xyzrgba_cloud->points[i].x = depth_point.x;
-              xyzrgba_cloud->points[i].y = -depth_point.y;
-              xyzrgba_cloud->points[i].z = -depth_point.z;
-              xyzrgba_cloud->points[i].r = red;
-              xyzrgba_cloud->points[i].g = green;
-              xyzrgba_cloud->points[i].b = blue;
-              if (need_xyz_)
-              {
-                xyz_cloud->points[i].x = depth_point.x;
-                xyz_cloud->points[i].y = -depth_point.y;
-                xyz_cloud->points[i].z = -depth_point.z;
-              }
-            }
+            xyz_cloud->points[i].x = depth_point.x;
+            xyz_cloud->points[i].y = -depth_point.y;
+            xyz_cloud->points[i].z = -depth_point.z;
           }
         }
-        point_cloud_rgba_signal_->operator () (xyzrgba_cloud);
-        if (need_xyz_)
-          point_cloud_signal_->operator () (xyz_cloud);
+      }
+    }
+    point_cloud_rgba_signal_->operator () (xyzrgba_cloud);
+    if (need_xyz_)
+    {
+      point_cloud_signal_->operator () (xyz_cloud);
+    }
   }
   else if (need_xyz_)
   {
     xyz_cloud.reset (new pcl::PointCloud<pcl::PointXYZ> (depth_width_, depth_height_));
     xyz_cloud->is_dense = false;
-    for (int dy=0; dy < depth_height_; ++dy)
+    for (int dy = 0; dy < depth_height_; ++dy)
     {
       uint i = dy * depth_width_ - 1;
       for (int dx = 0; dx < depth_width_; ++dx)
@@ -209,7 +214,7 @@ pcl::io::librealsense::LibRealSenseGrabberImpl::onDataReceived (const uint16_t* 
         float depth_in_meters = depth_value * scale;
         rs::float2 depth_pixel = {(float)dx, (float)dy};
         rs::float3 depth_point = depth_intrin.deproject (depth_pixel, depth_in_meters);
-        if(depth_value == 0 || depth_point.z > max_distance)
+        if (depth_value == 0 || depth_point.z > max_distance)
         {
           xyz_cloud->points[i].x = xyz_cloud->points[i].y = xyz_cloud->points[i].z = (float) nan;
           continue;

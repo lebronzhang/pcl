@@ -58,7 +58,7 @@ std::string
 pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGrabberImpl* grabber)
 {
   boost::mutex::scoped_lock lock (mutex_);
-  if(context_.get_device_count () == 0)
+  if (context_.get_device_count () == 0)
     THROW_IO_EXCEPTION ("no connected devices");
   for(int i = 0; i < context_.get_device_count (); i++)
   {

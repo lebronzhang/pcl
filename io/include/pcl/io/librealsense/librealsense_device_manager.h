@@ -143,7 +143,7 @@ namespace pcl
 
           std::map<std::string, CapturedDevice> captured_devices_;
 
-          //Thread map which control thread by setting thread flag
+          //Thread map which controls thread by setting thread flag
           std::map<std::string, bool> thread_close_flag_;
 
       };
