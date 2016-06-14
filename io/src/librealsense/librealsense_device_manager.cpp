@@ -86,7 +86,7 @@ pcl::io::librealsense::LibRealSenseDeviceManager::captureDevice (LibRealSenseGra
   boost::mutex::scoped_lock lock (mutex_);
   for (size_t i = 0; i < context_.get_device_count (); ++i)
   {
-    if (context_.get_device (i)->get_serial () == sn)
+    if (context_.get_device (i)->get_serial () == sn || context_.get_device (i)->get_serial () == sn + " ")
     {
       if (isCaptured (sn))
         THROW_IO_EXCEPTION ("device with serial number %s is captured by another grabber", sn.c_str ());
