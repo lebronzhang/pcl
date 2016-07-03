@@ -37,7 +37,7 @@
 
 #include <pcl/io/io_exception.h>
 
-#include <pcl/io/real_sense/real_sense_device_manager.h>
+#include <pcl/io/real_sense/sdk/real_sense_device_manager.h>
 
 boost::mutex pcl::io::real_sense::RealSenseDeviceManager::mutex_;
 

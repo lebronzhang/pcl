@@ -60,10 +60,7 @@ endif()
 if(WITH_RSSDK)
     PCL_ADD_EXECUTABLE_OPT_BUNDLE(pcl_real_sense_viewer ${SUBSYS_NAME} real_sense_viewer.cpp)
     target_link_libraries(pcl_real_sense_viewer pcl_common pcl_io pcl_visualization)
+else(WITH_LIBREALSENSE)
+    PCL_ADD_EXECUTABLE_OPT_BUNDLE(pcl_real_sense_viewer ${SUBSYS_NAME} real_sense_viewer.cpp)
+    target_link_libraries(pcl_real_sense_viewer pcl_common pcl_io pcl_visualization)
 endif()
-
-if(WITH_LIBREALSENSE)
-    PCL_ADD_EXECUTABLE_OPT_BUNDLE(pcl_librealsense_viewer ${SUBSYS_NAME} librealsense_viewer.cpp)
-    target_link_libraries(pcl_librealsense_viewer pcl_common pcl_io pcl_visualization)
-endif()
-

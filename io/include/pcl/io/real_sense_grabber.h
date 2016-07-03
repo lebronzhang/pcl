@@ -2,7 +2,8 @@
  * Software License Agreement (BSD License)
  *
  *  Point Cloud Library (PCL) - www.pointclouds.org
- *  Copyright (c) 2015-, Open Perception, Inc.
+ *  Copyright (c) 2014-, Open Perception, Inc.
+ *  Copyright (c) 2016, Intel Corporation
  *
  *  All rights reserved.
  *
@@ -48,40 +49,36 @@
 
 namespace pcl
 {
-
-  namespace io
-  {
-
+  namespace io 
+  { 
     template <typename T> class Buffer;
-
-    namespace real_sense
-    {
+    namespace real_sense 
+    { 
       class RealSenseDevice;
-    }
-
+    } 
   }
 
   class PCL_EXPORTS RealSenseGrabber : public Grabber
   {
-
     public:
 
       typedef
         void (sig_cb_real_sense_point_cloud)
           (const pcl::PointCloud<pcl::PointXYZ>::ConstPtr&);
-
+        
       typedef
         void (sig_cb_real_sense_point_cloud_rgba)
           (const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr&);
 
-      /** A descriptor for capturing mode.
-        *
-        * Consists of framerate and resolutions of depth and color streams.
-        * Serves two purposes: to describe the desired capturing mode when
-        * creating a grabber, and to list the available modes supported by the
-        * grabber (see getAvailableModes()). In the first case setting some
-        * fields to zero means "don't care", i.e. the grabber is allowed to
-        * decide itself which concrete values to use. */
+          /** A descriptor for capturing mode.
+            *
+            * Consists of framerate and resolutions of depth and color streams.
+            * Serves two purposes: to describe the desired capturing mode when
+            * creating a grabber, and to list the available modes supported by the
+            * grabber (see getAvailableModes()). In the first case setting some
+            * fields to zero means "don't care", i.e. the grabber is allowed to
+            * decide itself which concrete values to use. */
+
       struct PCL_EXPORTS Mode
       {
         unsigned int fps;
@@ -89,7 +86,7 @@ namespace pcl
         unsigned int depth_height;
         unsigned int color_width;
         unsigned int color_height;
-
+      
         /** Set all fields to zero (i.e. "don't care"). */
         Mode ();
 
@@ -109,6 +106,9 @@ namespace pcl
 
         /** Set desired framerate, depth and color resolution. */
         Mode (unsigned int fps, unsigned int depth_width, unsigned int depth_height, unsigned int color_width, unsigned int color_height);
+
+        bool
+        operator== (const pcl::RealSenseGrabber::Mode& m) const;
       };
 
       enum TemporalFilteringType
@@ -134,8 +134,8 @@ namespace pcl
         * If the default is supplied, then the mode closest to VGA at 30 Hz
         * will be chosen.
         * \param[in] strict if set to \c true, an exception will be thrown if
-        * device does not support exactly the mode requsted. Otherwise the
-        * closest available mode is selected. */
+         * device does not support exactly the mode requsted. Otherwise the
+            * closest available mode is selected. */
       RealSenseGrabber (const std::string& device_id = "", const Mode& mode = Mode (), bool strict = false);
 
       virtual
@@ -213,7 +213,7 @@ namespace pcl
 
     private:
 
-      void
+      void 
       run ();
 
       void
@@ -268,13 +268,10 @@ namespace pcl
 
       /// Depth buffer to perform temporal filtering of the depth images
       boost::shared_ptr<pcl::io::Buffer<unsigned short> > depth_buffer_;
-
   };
-
 }
 
 bool
 operator== (const pcl::RealSenseGrabber::Mode& m1, const pcl::RealSenseGrabber::Mode& m2);
 
 #endif /* PCL_IO_REAL_SENSE_GRABBER_H */
-
