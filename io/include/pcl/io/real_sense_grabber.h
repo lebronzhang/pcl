@@ -271,7 +271,5 @@ namespace pcl
   };
 }
 
-bool
-operator== (const pcl::RealSenseGrabber::Mode& m1, const pcl::RealSenseGrabber::Mode& m2);
-
 #endif /* PCL_IO_REAL_SENSE_GRABBER_H */
+
