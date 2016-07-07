@@ -50,15 +50,15 @@
 namespace pcl
 {
 
-  namespace io 
-  { 
+  namespace io
+  {
 
     template <typename T> class Buffer;
 
-    namespace real_sense 
-    { 
+    namespace real_sense
+    {
       class RealSenseDevice;
-    } 
+    }
 
   }
 
