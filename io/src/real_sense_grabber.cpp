@@ -36,7 +36,6 @@
  *
  */
 
-#include <boost/lexical_cast.hpp>
 
 #include <pcl/common/io.h>
 #include <pcl/common/time.h>
@@ -44,12 +43,6 @@
 #include <pcl/io/buffers.h>
 #include <pcl/io/io_exception.h>
 #include <pcl/io/real_sense_grabber.h>
-/*#ifdef HAVE_OPENNI
-#include <pcl/io/real_sense/librealsense/real_sense_device_manager.h>
-#else
-#include <pcl/io/real_sense/sdk/real_sense_device_manager.h>*/
-#include <pcl/io/real_sense/librealsense/real_sense_device_manager.h>
-//#endif
 
 using namespace pcl::io;
 using namespace pcl::io::real_sense;
@@ -92,26 +85,6 @@ pcl::RealSenseGrabber::Mode::operator== (const pcl::RealSenseGrabber::Mode& m) c
           this->depth_height == m.depth_height &&
           this->color_width == m.color_width &&
           this->color_height == m.color_height);
-}
-
-pcl::RealSenseGrabber::RealSenseGrabber (const std::string& device_id, const Mode& mode, bool strict)
-: Grabber ()
-, is_running_ (false)
-, confidence_threshold_ (6)
-, temporal_filtering_type_ (RealSense_None)
-, temporal_filtering_window_size_ (1)
-, mode_requested_ (mode)
-, strict_ (strict)
-{
-  if (device_id == "")
-    device_ = RealSenseDeviceManager::getInstance ()->captureDevice ();
-  else if (device_id[0] == '#')
-    device_ = RealSenseDeviceManager::getInstance ()->captureDevice (boost::lexical_cast<int> (device_id.substr (1)) - 1);
-  else
-    device_ = RealSenseDeviceManager::getInstance ()->captureDevice (device_id);
-
-  point_cloud_signal_ = createSignal<sig_cb_real_sense_point_cloud> ();
-  point_cloud_rgba_signal_ = createSignal<sig_cb_real_sense_point_cloud_rgba> ();
 }
 
 pcl::RealSenseGrabber::~RealSenseGrabber () throw ()
@@ -167,12 +140,6 @@ pcl::RealSenseGrabber::disableTemporalFiltering ()
   enableTemporalFiltering (RealSense_None, 1);
 }
 
-const std::string&
-pcl::RealSenseGrabber::getDeviceSerialNumber () const
-{
-  return (device_->getSerialNumber ());
-}
-
 void
 pcl::RealSenseGrabber::setMode (const Mode& mode, bool strict)
 {
@@ -212,7 +179,6 @@ pcl::RealSenseGrabber::selectMode ()
 {
   if (mode_requested_ == Mode ())
     mode_requested_ = Mode (30, 640, 480, 640, 480);
-  printf("mode_requested_ fps: %i\n",mode_requested_.fps);
   float best_score = std::numeric_limits<float>::max ();
   std::vector<Mode> modes = getAvailableModes (!need_xyzrgba_);
   for (size_t i = 0; i < modes.size (); ++i)

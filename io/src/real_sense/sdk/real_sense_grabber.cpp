@@ -36,9 +36,13 @@
  *
  */
 
+#include <boost/lexical_cast.hpp>
+
 #include <pcl/io/real_sense_grabber.h>
 #include <pcl/io/real_sense/sdk/real_sense_device_manager.h>
 #include <pcl/common/io.h>
+#include <pcl/io/buffers.h>
+#include <pcl/io/io_exception.h>
 
 #include <pxcimage.h>
 #include <pxccapture.h>
@@ -65,6 +69,26 @@ convertPoint (const PXCPoint3DF32& src, T& tgt)
     tgt.y = src.y / 1000.0;
     tgt.z = src.z / 1000.0;
   }
+}
+
+pcl::RealSenseGrabber::RealSenseGrabber (const std::string& device_id, const Mode& mode, bool strict)
+: Grabber ()
+, is_running_ (false)
+, confidence_threshold_ (6)
+, temporal_filtering_type_ (RealSense_None)
+, temporal_filtering_window_size_ (1)
+, mode_requested_ (mode)
+, strict_ (strict)
+{
+  if (device_id == "")
+    device_ = RealSenseDeviceManager::getInstance ()->captureDevice ();
+  else if (device_id[0] == '#')
+    device_ = RealSenseDeviceManager::getInstance ()->captureDevice (boost::lexical_cast<int> (device_id.substr (1)) - 1);
+  else
+    device_ = RealSenseDeviceManager::getInstance ()->captureDevice (device_id);
+
+  point_cloud_signal_ = createSignal<sig_cb_real_sense_point_cloud> ();
+  point_cloud_rgba_signal_ = createSignal<sig_cb_real_sense_point_cloud_rgba> ();
 }
 
 void
@@ -102,6 +126,12 @@ pcl::RealSenseGrabber::start ()
       thread_ = boost::thread (&RealSenseGrabber::run, this);
     }
   }
+}
+
+const std::string&
+pcl::RealSenseGrabber::getDeviceSerialNumber () const
+{
+  return (device_->getSerialNumber ());
 }
 
 void

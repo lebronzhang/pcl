@@ -36,8 +36,10 @@
  *
  */
 
+#include <boost/lexical_cast.hpp>
+
 #include <librealsense/rs.hpp>
- 
+
 #include <pcl/common/io.h>
 #include <pcl/io/buffers.h>
 #include <pcl/io/real_sense_grabber.h>
@@ -45,6 +47,27 @@
 
 
 using namespace pcl::io;
+using namespace pcl::io::real_sense;
+
+pcl::RealSenseGrabber::RealSenseGrabber (const std::string& device_id, const Mode& mode, bool strict)
+: Grabber ()
+, is_running_ (false)
+, confidence_threshold_ (6)
+, temporal_filtering_type_ (RealSense_None)
+, temporal_filtering_window_size_ (1)
+, mode_requested_ (mode)
+, strict_ (strict)
+{
+  if (device_id == "")
+    device_ = RealSenseDeviceManager::getInstance ()->captureDevice ();
+  else if (device_id[0] == '#')
+    device_ = RealSenseDeviceManager::getInstance ()->captureDevice (boost::lexical_cast<int> (device_id.substr (1)) - 1);
+  else
+    device_ = RealSenseDeviceManager::getInstance ()->captureDevice (device_id);
+
+  point_cloud_signal_ = createSignal<sig_cb_real_sense_point_cloud> ();
+  point_cloud_rgba_signal_ = createSignal<sig_cb_real_sense_point_cloud_rgba> ();
+}
 
 void
 pcl::RealSenseGrabber::start ()
@@ -55,6 +78,11 @@ pcl::RealSenseGrabber::start ()
     need_xyzrgba_ = num_slots<sig_cb_real_sense_point_cloud_rgba> () > 0;
     if (need_xyz_ || need_xyzrgba_)
     {
+      if (temporal_filtering_type_ != RealSense_None)
+      {
+        temporal_filtering_type_ = RealSense_None;
+        PCL_WARN ("[pcl::RealSenseGrabber::enableTemporalFiltering] This device does not support temporal filter with librealsense now\n");
+      }
       selectMode ();
       device_->getDevice ()->enable_stream (rs::stream::depth, mode_selected_.depth_width, mode_selected_.depth_height, rs::format::z16, mode_selected_.fps);
     }
@@ -68,6 +96,12 @@ pcl::RealSenseGrabber::start ()
   }
 }
 
+const std::string&
+pcl::RealSenseGrabber::getDeviceSerialNumber () const
+{
+  return (device_->getSerialNumber ());
+}
+
 void
 pcl::RealSenseGrabber::setConfidenceThreshold (unsigned int threshold)
 {
@@ -75,11 +109,13 @@ pcl::RealSenseGrabber::setConfidenceThreshold (unsigned int threshold)
   {
     PCL_WARN ("[pcl::RealSenseGrabber::setConfidenceThreshold] Attempted to set threshold outside valid range (0-15)");
   }
+  else if (!device_->getDevice ()->supports_option (rs::option::f200_confidence_threshold))
+  {
+    PCL_WARN ("[pcl::RealSenseGrabber::setConfidenceThreshold] This device does not support setting confidence threshold with librealsense now\n");
+  }
   else
   {
-    if (device_->getDevice ()->supports_option (rs::option::f200_confidence_threshold))
-      std::cerr << "Device supports threshold\n";
-    device_->getDevice ()->set_option (rs::option::f200_confidence_threshold , threshold);
+    device_->getDevice ()->set_option (rs::option::f200_confidence_threshold, threshold);
   }
 }
 
@@ -270,4 +306,5 @@ pcl::RealSenseGrabber::run ()
       //do nothing
     }
   }
+  device->stop ();
 }
