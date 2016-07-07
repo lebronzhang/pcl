@@ -81,7 +81,7 @@ bool
 pcl::RealSenseGrabber::Mode::operator== (const pcl::RealSenseGrabber::Mode& m) const
 {
   return (this->fps == m.fps &&
-          this->depth_width == m.depth_width &&
+  	      this->depth_width == m.depth_width &&
           this->depth_height == m.depth_height &&
           this->color_width == m.color_width &&
           this->color_height == m.color_height);

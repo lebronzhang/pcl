@@ -1,6 +1,6 @@
 # ChangeList
 
-## *= 1.8.0 (14.06.2016) =*
+## *= 1.8.0 (xx.11.2015) =*
 
 * Added missing `Eigen::aligned_allocator` in vectors and maps that contain
   vectorizable Eigen where appropriate
@@ -122,8 +122,6 @@
   [[#1462]](https://github.com/PointCloudLibrary/pcl/pull/1462)
 * Fixed OpenMP support on MSVC in `Convolution3D`
   [[#1527]](https://github.com/PointCloudLibrary/pcl/pull/1527)
-* BugFix: Filters used applyFilter twice.
-  [[#1572]](https://github.com/PointCloudLibrary/pcl/pull/1572)
 
 ### `libpcl_gpu:`
 
@@ -145,8 +143,6 @@
 * Fixed `plot_camera_poses.m` script in KinFu project
   [[#1311]](https://github.com/PointCloudLibrary/pcl/pull/1311)
 * Fixed runtime exceptions related to `--viz` flag in KinFu
-* Fix compilation on Mac OSX
-  [[#1586]](https://github.com/PointCloudLibrary/pcl/pull/1586)
 
 ### `libpcl_io:`
 
@@ -217,8 +213,6 @@
   [[#1445]](https://github.com/PointCloudLibrary/pcl/pull/1445)
 * Added a grabber and viewer for Velodyne VLP
   [[#1452]](https://github.com/PointCloudLibrary/pcl/pull/1452)
-* Fix compilation when WITH_VTK=OFF
-  [[#1585]](https://github.com/PointCloudLibrary/pcl/pull/1585)
 
 ### `libpcl_keypoints:`
 
@@ -299,8 +293,6 @@
   [[#1426]](https://github.com/PointCloudLibrary/pcl/pull/1426)
 * Fixed segmentation fault occuring in `CorrespondenceRejectorSurfaceNormal`
   [[#1536]](https://github.com/PointCloudLibrary/pcl/pull/1536)
-* Use aligned allocator in vectors of MatchingCandidate
-  [[#1552]](https://github.com/PointCloudLibrary/pcl/pull/1552)
 
 ### `libpcl_sample_consensus:`
 
@@ -473,8 +465,6 @@
   [[#1300]](https://github.com/PointCloudLibrary/pcl/pull/1300)
 * Fixed behavior of `PCLVisualizer::wasStopped()` with VTK6 on OSX
   [[#1436]](https://github.com/PointCloudLibrary/pcl/pull/1436)
-* Improve pointcloud visualization with colormaps
-  [[#1581]](https://github.com/PointCloudLibrary/pcl/pull/1581)
 
 ### `PCL Apps:`
 
@@ -489,8 +479,6 @@
 
 * Updated supervoxel clustering example
   [[#915]](https://github.com/PointCloudLibrary/pcl/pull/915)
-* Fixes for MS Visual Studio 2013
-  [[#1526]](https://github.com/PointCloudLibrary/pcl/pull/1526)
 
 ### `PCL Tools:`
 
@@ -568,8 +556,6 @@
   [[#811]](https://github.com/PointCloudLibrary/pcl/pull/811)
 * Fixed memory corruption error in OUR-CVFH
   [[#875]](https://github.com/PointCloudLibrary/pcl/pull/875)
-* Declare `const InterestPoint&` explicitly
-  [[#1541]](https://github.com/PointCloudLibrary/pcl/pull/1541)
 
 ### `libpcl_filters:`
 
@@ -709,8 +695,6 @@
   [[#689]](https://github.com/PointCloudLibrary/pcl/pull/689)
 * Reduced space usage in `MovingLeastSquares`
   [[#785]](https://github.com/PointCloudLibrary/pcl/pull/785)
-* Adds MLS instantiation for input type PointXYZRGBNormal
-  [[#1545]](https://github.com/PointCloudLibrary/pcl/pull/1545)
 
 ### `libpcl_tracking:`
 

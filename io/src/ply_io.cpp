@@ -375,19 +375,20 @@ namespace pcl
 void
 pcl::PLYReader::vertexColorCallback (const std::string& color_name, pcl::io::ply::uint8 color)
 {
+  static int32_t r, g, b;
   if ((color_name == "red") || (color_name == "diffuse_red"))
   {
-    r_ = int32_t (color);
+    r = int32_t (color);
     rgb_offset_before_ = vertex_offset_before_;
   }
   if ((color_name == "green") || (color_name == "diffuse_green"))
   {
-    g_ = int32_t (color);
+    g = int32_t (color);
   }
   if ((color_name == "blue") || (color_name == "diffuse_blue"))
   {
-    b_ = int32_t (color);
-    int32_t rgb = r_ << 16 | g_ << 8 | b_;
+    b = int32_t (color);
+    int32_t rgb = r << 16 | g << 8 | b;
     memcpy (&cloud_->data[vertex_count_ * cloud_->point_step + rgb_offset_before_],
             &rgb,
             sizeof (pcl::io::ply::float32));
@@ -398,16 +399,17 @@ pcl::PLYReader::vertexColorCallback (const std::string& color_name, pcl::io::ply
 void
 pcl::PLYReader::vertexAlphaCallback (pcl::io::ply::uint8 alpha)
 {
-  a_ = uint32_t (alpha);
+  static uint32_t a, rgba;
+  a = uint32_t (alpha);
   // get anscient rgb value and store it in rgba
-  memcpy (&rgba_, 
+  memcpy (&rgba, 
           &cloud_->data[vertex_count_ * cloud_->point_step + rgb_offset_before_], 
           sizeof (pcl::io::ply::float32));
   // append alpha
-  rgba_ = rgba_ | a_ << 24;
+  rgba = rgba | a << 24;
   // put rgba back
   memcpy (&cloud_->data[vertex_count_ * cloud_->point_step + rgb_offset_before_], 
-          &rgba_, 
+          &rgba, 
           sizeof (uint32_t));
 }
 
@@ -998,7 +1000,7 @@ pcl::PLYWriter::writeContentWithCameraASCII (int nr_points,
           fs << " ";
       }
     }
-    fs << '\n';
+    fs << std::endl;
   }
   // Append sensor information
   if (origin[3] != 0)
@@ -1149,7 +1151,7 @@ pcl::PLYWriter::writeContentWithRangeGridASCII (int nr_points,
     if (is_valid_line)
     {
       grids[i].push_back (valid_points);
-      fs << line.str () << '\n';
+      fs << line.str () << std::endl;
       ++valid_points;
     }
   }
@@ -1164,7 +1166,7 @@ pcl::PLYWriter::writeContentWithRangeGridASCII (int nr_points,
            it != grids [i].end ();
            ++it)
         fs << " " << *it;
-      fs << '\n';
+      fs << std::endl;
     }
   }
 
@@ -1578,7 +1580,7 @@ pcl::io::savePLYFile (const std::string &file_name, const pcl::PolygonMesh &mesh
       PCL_ERROR ("[pcl::io::savePLYFile] Input point cloud has no XYZ data!\n");
       return (-2);
     }
-    fs << '\n';
+    fs << std::endl;
   }
 
   // Write down faces
@@ -1588,7 +1590,7 @@ pcl::io::savePLYFile (const std::string &file_name, const pcl::PolygonMesh &mesh
     size_t j = 0;
     for (j = 0; j < mesh.polygons[i].vertices.size () - 1; ++j)
       fs << mesh.polygons[i].vertices[j] << " ";
-    fs << mesh.polygons[i].vertices[j] << '\n';
+    fs << mesh.polygons[i].vertices[j] << std::endl;
   }
 
   // Close file
